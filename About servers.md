@@ -49,17 +49,8 @@ Servers aren't a single "thing" — they're categorized in three different ways,
 - **Virtual Servers** – software-based servers that share the physical resources of one real machine, created using a technology called a **hypervisor** (explained later in this article).
 - **Edge Servers** – smaller servers placed physically closer to end users (for example, in a regional office or a cell tower site) to reduce delay (latency) for things like video streaming or IoT data processing.
 
-### 1.3 Why This Topic Matters
 
-Understanding servers is not just theory for IT students — it is the daily reality of how every company, hospital, bank, and government office keeps its digital operations running. In a **data center** (a dedicated facility built specifically to house many servers(OS, CPU, memory, storage, network cards), with controlled temperature, backup power, and strict physical security), a single misunderstood server setting can cause an outage affecting thousands of users. This is why data center teams spend so much time on monitoring, redundancy, and careful change management — the cost of getting it wrong is measured in lost revenue and lost trust.
 
-Among server operating systems, **Windows Server** holds a dominant position in business environments specifically (as opposed to Linux, which dominates public-facing web infrastructure and supercomputing). The reasons are practical rather than purely technical:
-
-- Most companies already run Windows desktops, and Windows Server integrates naturally with them through a feature called **Active Directory** (a centralized directory of users, computers, and permissions, explained in depth later).
-- A huge share of business software — Microsoft SQL Server, Exchange, SharePoint, and many industry-specific applications — is built first (or only) for Windows Server.
-- Microsoft offers long, predictable support timelines and a single vendor to call for both the OS and many of the applications running on it, which matters enormously for compliance-heavy industries like banking and healthcare.
-
-When people compare **benchmarks** (performance tests) between Windows Server and Linux, the honest answer is that neither operating system is universally "faster." Linux distributions often show an edge in raw network throughput and lightweight container density because of a smaller resource footprint, which is why Linux dominates large-scale web hosting and cloud-native workloads. Windows Server, on the other hand, tends to perform best on workloads that are deeply integrated with the Microsoft ecosystem — Active Directory-based authentication, .NET applications, and SQL Server databases — where its tight OS-to-application integration outweighs any raw speed difference. The "better" choice nearly always depends on the workload, not on an abstract performance number, and macOS is rarely even part of this conversation since Apple does not produce a dedicated server operating system anymore.
 
 
 
