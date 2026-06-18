@@ -1,4 +1,6 @@
 ## 2. Overview
+Among server operating systems, **Windows Server** holds a dominant position in business environments specifically (as opposed to Linux, which dominates public-facing web infrastructure and supercomputing). The reasons are practical rather than purely technical:
+
 
 ### 2.1 Defining the Concept
 
@@ -270,9 +272,6 @@ Windows Server organizes its capabilities into installable **roles** (major func
 - **Document configurations and changes.** A simple, consistently updated record of "what changed, when, and why" saves enormous time during troubleshooting and onboarding new team members.
 - **Segment networks and limit lateral movement**, so that if one server is compromised, an attacker cannot freely roam the entire network.
 
-### 10.2 Practical Advice
-
-A useful habit for any administrator, beginner or experienced, is to ask "what happens if this fails?" for every new server before it goes live — not after. For example, before deploying a new file server, ask: what happens if this disk fails (is RAID configured)? What happens if this whole server goes offline (is there a backup, or a cluster partner)? What happens if someone needs to recover a single deleted file from three weeks ago (are backups granular and tested)? Answering these questions in advance turns a potential 3 a.m. emergency into a calm, already-rehearsed recovery procedure.
 
 ---
 
