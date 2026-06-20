@@ -5,12 +5,11 @@
 ### 1.1 Why Do We Even Need Servers?
 A/workgroup vs domain :
 
-In a small network with no domain, every Windows machine works in what's called a workgroup. In this setup, each computer keeps its own local user accounts and passwords inside a file called the SAM (Security Account Manager) database --every PC is its own independent island of identity. This is fine for a tiny office with two or three computers, but it becomes unmanageable fast as a company grows, since there's no central place to add, remove, or reset a user, and no way to push the same security rule to every machine at once.
+In a workgroup each computer keeps its own local user accounts and passwords inside a file called the SAM (Security Account Manager) database . This is fine for a tiny office with two or three computers, but it becomes unmanageable fast as a company grows, since there's no central place to add, remove, or reset a user, and no way to push the same security rule to every machine at once.
 
-A domain solves exactly this problem by moving identity out of each individual machine's local SAM and into one shared, centralized database managed by a Domain Controller (DC) — a server running Active Directory. Once a computer joins the domain, it stops trusting its own local SAM for domain logins and instead asks the DC "is this username and password valid?" every time someone signs in. 
+A domain solves exactly this problem by moving from SAM into one shared, centralized database managed by a Domain Controller (DC) — a server running Active Directory. Once a computer joins the domain, it stops trusting its own local SAM for domain logins and instead asks the DC "is this username and password valid?" every time someone signs in. 
 That's the whole reason domains exist: one account, created once, works on every machine in the company, and one administrator can manage permissions, password policies, and security settings for the entire organization from a single place.
-
-Almost every digital service you use is actually a conversation between two computers. One computer asks for something(client), and another computer answers(server). This relationship is known as the **client-server model**.
+This relationship is known as the **client-server model**.
 
 B/server vs desktop:
 
