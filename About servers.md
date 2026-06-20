@@ -1,8 +1,6 @@
 # Server Explained: A Complete Beginner's Guide
 
-## 1. Introduction
-
-### 1.1 Why Do We Even Need Servers?
+## 1 Why Do We Even Need Servers?
 A/workgroup vs domain :
 
 In a workgroup each computer keeps its own local user accounts and passwords inside a file called the SAM (Security Account Manager) database . This is fine for a tiny office with two or three computers, but it becomes unmanageable fast as a company grows, since there's no central place to add, remove, or reset a user, and no way to push the same security rule to every machine at once.
@@ -26,7 +24,7 @@ Let's break down what makes server hardware fundamentally different:
 
 - **A purpose-built operating system.** A desktop OS like Windows 11 is optimized for one user clicking around a graphical interface. A server OS like Windows Server is optimized to run unattended for long stretches, handle hundreds of simultaneous network connections, and expose specialized management tools instead of consumer features like a Start menu full of games.
 
-### 1.2 The Many Types of Servers
+## 2 The Many Types of Servers
 Servers aren't a single "thing" — they're categorized in three different ways, and it's worth understanding all three before going further.
 
 **By function (what software role the server plays):**
@@ -49,8 +47,74 @@ Servers aren't a single "thing" — they're categorized in three different ways,
 - **Edge Servers** – smaller servers placed physically closer to end users (for example, in a regional office or a cell tower site) to reduce delay (latency) for things like video streaming or IoT data processing.
 
 
+## 3 server software architecture
 
+Step 1: BIOS/UEFI starts
+Checks hardware (CPU, RAM, disks)
+Finds boot disk
+Step 2: Windows Boot Manager starts
+Loads Windows kernel (ntoskrnl.exe)
+Step 3: Windows Kernel takes control
 
+Now the real server system starts.
+
+1. Event-driven model
+Instead of blocking:
+Server registers events like:
+“request arrived”
+“data ready”
+Uses an event loop
+Handles requests when they are ready
+2. Thread-based model
+Server runs as one main process
+Creates a pool of threads
+Each incoming request is assigned to a thread
+3. Process-based model
+Server starts a master process
+For each request:
+it creates a new process (or uses a pool)
+That process handles the request fully
+
+after Client sends request
+Layer 1: Hardware (host machine)
+ - CPU (executes instructions)
+ - RAM (temporary working memory)
+ - Disk (permanent storage)
+ - Network interface (NIC)
+
+Layer 2: Operating System provides:
+ - Networking (TCP/IP stack)
+ - Process management
+ - Memory management
+ - File system access
+ - Security (users, permissions)
+
+Layer 3: Server process
+start
+open network port
+while true:
+    wait for request
+    process request
+    send response
+
+Layer 4: Network communication (TCP/IP)
+ - IP address (where machine is)
+ - Port (which service inside machine)
+ - Protocol (rules of communication)
+
+Let’s take a web server:
+Step-by-step real architecture:
+1. OS receives network packet
+TCP stack processes it
+2. Kernel stores data in buffer
+socket buffer fills
+3. Server process is notified
+via event system (epoll/select)
+4. Server reacts
+reads request from buffer
+5. Worker handles logic
+thread or event handler
+6. Response is written back to socket
 
 
 
