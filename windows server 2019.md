@@ -1,5 +1,5 @@
 
-**Windows Server 2019** is Microsoft server operating system family 
+**Windows Server** is Microsoft server operating system family 
 Its primary function is to act as a reliable infrastructure platform that delivers services
 
 ---
