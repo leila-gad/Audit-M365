@@ -1,4 +1,4 @@
-# Server Explained: A Complete Beginner's Guide
+# Server Explained
 
 ## 1 Why Do We Even Need Servers?
 A/workgroup vs domain :
