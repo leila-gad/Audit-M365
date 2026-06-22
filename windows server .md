@@ -47,7 +47,7 @@ A simple real-world example of why version choice matters: a hospital running a 
 
 ## 5. Windows Server Architecture
 
-### 5.1 Active Directory: Deep Explanation
+### 5.1 Active Directory: 
 **Active Directory (AD)** is a centralized, structured database that stores information about every user, computer, printer, and security group in a network, along with the rules about who can access what.
 Key building blocks:
 - **Domain Controller (DC):** a server running Active Directory that handles login requests and enforces security policy. 
