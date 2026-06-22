@@ -46,75 +46,99 @@ Servers aren't a single "thing" — they're categorized in three different ways,
 - **Virtual Servers** – software-based servers that share the physical resources of one real machine, created using a technology called a **hypervisor** (explained later in this article).
 - **Edge Servers** – smaller servers placed physically closer to end users (for example, in a regional office or a cell tower site) to reduce delay (latency) for things like video streaming or IoT data processing.
 
+## 3 how this is done :
 
-## 3 server software architecture
+Requests constantly move between these two worlds.
+User Mode
+   IIS
+   DNS
+   DHCP
 
-Step 1: BIOS/UEFI starts
-Checks hardware (CPU, RAM, disks)
-Finds boot disk
-Step 2: Windows Boot Manager starts
-Loads Windows kernel (ntoskrnl.exe)
-Step 3: Windows Kernel takes control
+Kernel Mode
+   Scheduler
+   Drivers
+   TCP/IP Stack
+   Memory Manager
 
-Now the real server system starts.
 
-1. Event-driven model
-Instead of blocking:
-Server registers events like:
-“request arrived”
-“data ready”
-Uses an event loop
-Handles requests when they are ready
-2. Thread-based model
-Server runs as one main process
-Creates a pool of threads
-Each incoming request is assigned to a thread
-3. Process-based model
-Server starts a master process
-For each request:
-it creates a new process (or uses a pool)
-That process handles the request fully
+Power On
+ ↓
+BIOS/UEFI(firmware stored on the motherboard by running POST (Power-On Self-Test) whose only purpose is:
+1. Wake up hardware
+2. Check hardware
+3. Find the operating system
+4. Load the operating system)
+ ↓
+Boot Loader(Windows Boot Manager is a small program that starts Windows from your hard drive and brings Windows into memory)
+ ↓
+Windows Kernel(The kernel is not started by another program — it starts executing itself immediately after the Windows Loader loads it into RAM)
 
-after Client sends request
-Layer 1: Hardware (host machine)
- - CPU (executes instructions)
- - RAM (temporary working memory)
- - Disk (permanent storage)
- - Network interface (NIC)
+ ↓
+System Services Start(decides which services must start automatically
+launches them
+Network service
+Windows Update
+Security services
+Server roles (DNS, AD DS, etc.))
+ ↓
+Server Application Opens Port(services starting (handled by SCM))
+ ↓
+Client Sends Request
+ ↓
+NIC Receives Packet
+ ↓
+TCP/IP Stack Processes Packet(packet processing is done in the kernel)
+ ↓
+Request Assigned (Event / Thread / Process)
+ ↓
+Application Logic Executes(
+Event-driven
+Request arrives
+ ↓
+Event generated
+ ↓
+Event loop wakes up
+ ↓
+Request handled
 
-Layer 2: Operating System provides:
- - Networking (TCP/IP stack)
- - Process management
- - Memory management
- - File system access
- - Security (users, permissions)
+Thread-based
+Request arrives
+ ↓
+Thread selected
+ ↓
+Thread handles request
 
-Layer 3: Server process
-start
-open network port
-while true:
-    wait for request
-    process request
-    send response
+Process-based
+Request arrives
+ ↓
+Process assigned
+ ↓
+Process handles request
+)IIS (web server):
 
-Layer 4: Network communication (TCP/IP)
- - IP address (where machine is)
- - Port (which service inside machine)
- - Protocol (rules of communication)
+It uses a hybrid model:
 
-Let’s take a web server:
-Step-by-step real architecture:
-1. OS receives network packet
-TCP stack processes it
-2. Kernel stores data in buffer
-socket buffer fills
-3. Server process is notified
-via event system (epoll/select)
-4. Server reacts
-reads request from buffer
-5. Worker handles logic
-thread or event handler
-6. Response is written back to socket
+worker processes (W3WP.exe)
+multiple threads inside them
+async/event-based networking
+ ↓
+Response Generated
+ ↓
+TCP/IP Stack Sends Response
+ ↓
+Client Receives Response
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
