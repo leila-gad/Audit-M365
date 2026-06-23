@@ -55,14 +55,14 @@ each version changes the internal engine and adds new ways to manage systems mor
 ### Core Architecture
 
 - **Execution Modes:** Windows operates in two modes:
-Kernel Mode: the Windows NT kernel, responsible for:
+1/Kernel Mode: the Windows NT kernel, responsible for:
 CPU / Memory management/ Hardware interaction/ Security enforcement it has Full access to system hardware and memory; used by core system components.
-User Mode: Restricted environment where applications and services run safely. those services are managed by **System Services:** with the Service Control Manager (SCM), which starts, stops, and monitors background services.
+2/User Mode: Restricted environment where applications and services run safely. those services are managed by **System Services:** with the Service Control Manager (SCM), which starts, stops, and monitors background services.
 
 ### Networking Architecture
 
-- **TCP/IP:** Core communication protocol suite.
-- **DNS (Domain Name System):** translating names into IP addresses.
+- **TCP/IP:** Core communication protocol suite
+- **DNS (Domain Name System):** translating names into IP addresses
 - **DHCP (Dynamic Host Configuration Protocol):** a service that automatically assigns IP addresses to devices joining the network
 - **Subnetting:** dividing a large network into smaller and manageable segments
 - **VLANs (Virtual Local Area Networks):** a way to logically separate traffic on the same physical network hardware, commonly used to keep guest Wi-Fi traffic isolated from internal company traffic
@@ -109,7 +109,7 @@ Fax Server → “Send/receive fax (old technology)”
 
 Windows uses this layered system
 - **File Server:** Shares folders across network
-- **NTFS (New Technology File System):** the traditional, well-tested file system Windows Server uses to organize data on disks, supporting file permissions, encryption, and compression.
+- **NTFS (New Technology File System):** the traditional, well-tested file system Windows Server uses to organize data on disks, supporting file permissions, encryption, and compression
 - **ReFS (Resilient File System):** a newer file system designed for very large data sets and better resilience against data corruption, often used for storage-heavy roles like Hyper-V virtual machine storage.
 - **Storage Spaces:** a software layer that pools multiple physical disks together and presents them as flexible virtual disks, similar in spirit to RAID but managed through software.
 - **Storage Spaces Direct (S2D):** an advanced version of Storage Spaces that pools local storage across multiple servers in a cluster, creating shared, highly available storage without needing a separate, expensive storage array.
@@ -118,12 +118,12 @@ Windows uses this layered system
 
 ###  High Availability and Failover architecture
 
+Types of Failover
+ Active-Passive(running/standby)
+ Active-Active(running/running)
 - **Failover Clustering:** a group of servers (called nodes) that work together so that if one node fails, another node automatically takes over its workload with minimal interruption.
 - **Quorum:** a voting mechanism used by a cluster to decide which nodes are healthy and should keep running. 
 - **Network Load Balancing (NLB):** distributing incoming network traffic across multiple servers so no single server becomes overwhelmed, and so traffic can be redirected if one server goes down.
-Types of Failover
- Active-Passive
- Active-Active
 
 ###  Security architecture
 
@@ -149,7 +149,9 @@ Performance Monitor: Tracks system performance metrics.
 
 Modern Windows Server is built to bridge on-premises and cloud environments. 
 - **Azure Arc** it allows a company to manage on-premises Windows Servers from the same Azure portal used for cloud resources
-- **Microsoft Entra Connect** (formerly Azure AD Connect) synchronizes an on-premises Active Directory withAzure Active Directory. so an employee can use one set of credentials to log into their office computer and into cloud services like Microsoft 365.
+- **Microsoft Entra Connect** (formerly Azure AD Connect) synchronizes an on-premises Active Directory with Azure Active Directory. so an employee can use one set of credentials to log into their office computer and into cloud services like Microsoft 365.
+- Windows Admin Center vs azure arc ?
+  
 
 
 
@@ -160,7 +162,6 @@ The real danger is silent and cumulative: every month without patches widens the
 - **Compliance failures.** An unsupported server can fail an audit even if it's technically still working fine.
 - **Vendor and insurance risk.** Cyber-insurance policies increasingly require supported software; running unsupported servers can void coverage after a breach. Third-party software vendors may also drop support for their own applications running on an unsupported OS.
 - **Growing attack surface over time.** The longer a server stays unpatched after end of support, the more publicly known exploits accumulate against it, while defenses stay frozen in time.
-
 
 
 ---
