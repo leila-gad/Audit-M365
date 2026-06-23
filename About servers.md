@@ -38,8 +38,9 @@ Servers aren't a single "thing" — they're categorized in three different ways,
 
 **By form factor (the physical hardware shape):**
 - **Tower Servers** – look like a large desktop PC tower; common in small businesses with no dedicated server room.
-- **Rack Servers** – thin, flat units that slide into a standard 19-inch rack frame, stacked one above another to save space in a data center.
+- **Rack Servers** – server that is built specifically to be mounted within a server rack they are typically built with all the needed components to operate as a stand-alone system. They can be very powerful and are used to run high end applications.
 - **Blade Servers** – even more compact; individual "blades" slot into a shared chassis that provides shared power, cooling, and networking, allowing very high density.
+Choose rack servers if you need flexible, independent computers, have a smaller budget, or want to expand slowly. Choose blade servers if you need extreme processing power in a small space, require massive virtualization (running many virtual computers on one machine), and have a larger budget
 
 **By architecture/deployment model:**
 - **Cloud Servers** – virtual machines rented from a provider like Microsoft Azure, AWS, or Google Cloud, running on the provider's physical hardware.
