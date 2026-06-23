@@ -49,28 +49,18 @@ Choose rack servers if you need flexible, independent computers, have a smaller 
 
 ## 3 how this is done :
 
-Requests constantly move between these two worlds.
-User Mode
-   IIS
-   DNS
-   DHCP
-
-Kernel Mode
-   Scheduler
-   Drivers
-   TCP/IP Stack
-   Memory Manager
-
-
 Power On
  ↓
+ 
 BIOS/UEFI(firmware stored on the motherboard by running POST (Power-On Self-Test) whose only purpose is:
 1. Wake up hardware
 2. Check hardware
 3. Find the operating system
 4. Load the operating system)
+
  ↓
 Boot Loader(Windows Boot Manager is a small program that starts Windows from your hard drive and brings Windows into memory)
+
  ↓
 Windows Kernel(The kernel is not started by another program — it starts executing itself immediately after the Windows Loader loads it into RAM)
 
@@ -82,18 +72,20 @@ Windows Update
 Security services
 Server roles (DNS, AD DS, etc.))
  ↓
+ 
 Server Application Opens Port(services starting (handled by SCM))
  ↓
+ 
 Client Sends Request
  ↓
+ 
 NIC Receives Packet
  ↓
+ 
 TCP/IP Stack Processes Packet(packet processing is done in the kernel)
  ↓
-Request Assigned (Event / Thread / Process)
- ↓
-Application Logic Executes(
-Event-driven
+ 
+Request Assigned (Event / Thread / Process)Event-driven
 Request arrives
  ↓
 Event generated
@@ -122,6 +114,10 @@ It uses a hybrid model:
 worker processes (W3WP.exe)
 multiple threads inside them
 async/event-based networking
+ ↓
+ 
+Application Logic Executes(
+
  ↓
 Response Generated
  ↓
