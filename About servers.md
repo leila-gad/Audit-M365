@@ -85,44 +85,19 @@ NIC Receives Packet
 TCP/IP Stack Processes Packet(packet processing is done in the kernel)
  ↓
  
-Request Assigned (Event / Thread / Process)Event-driven
-Request arrives
- ↓
-Event generated
- ↓
-Event loop wakes up
- ↓
-Request handled
+Request Assigned (Event-driven process: Request arrives/Event generated/Event loop wakes up/Request handled) ou (Thread-based process:Request arrives/Thread selected/Thread handles request ) ou  (Process-based:Request arrives/Process assigned/Process handles request)EX;IIS (web server:It uses a hybrid model)
 
-Thread-based
-Request arrives
- ↓
-Thread selected
- ↓
-Thread handles request
-
-Process-based
-Request arrives
- ↓
-Process assigned
- ↓
-Process handles request
-)IIS (web server):
-
-It uses a hybrid model:
-
-worker processes (W3WP.exe)
-multiple threads inside them
-async/event-based networking
  ↓
  
-Application Logic Executes(
+Application Logic Executes
 
  ↓
 Response Generated
  ↓
+ 
 TCP/IP Stack Sends Response
  ↓
+ 
 Client Receives Response
 
 
