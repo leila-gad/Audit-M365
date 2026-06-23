@@ -59,7 +59,7 @@ Kernel Mode: the Windows NT kernel, responsible for:
 CPU / Memory management/ Hardware interaction/ Security enforcement it has Full access to system hardware and memory; used by core system components.
 User Mode: Restricted environment where applications and services run safely. those services are managed by **System Services:** with the Service Control Manager (SCM), which starts, stops, and monitors background services.
 
-### Core Networking Infrastructure
+### Networking Architecture
 
 - **TCP/IP:** Core communication protocol suite.
 - **DNS (Domain Name System):** translating names into IP addresses.
