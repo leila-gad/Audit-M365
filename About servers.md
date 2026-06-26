@@ -18,11 +18,10 @@ Let's break down what makes server hardware fundamentally different:
 
 - **Dual CPU sockets.** Many server motherboards have **two physical CPU sockets** instead of one. This is called a dual-socket or multi-socket design. It means the server can run two separate processors at the same time, giving it far more processing power for heavy workloads like databases, and also giving some redundancy, since the system can sometimes keep operating in a degraded state if there's a hardware issue with one path.
 
-- **RAID (Redundant Array of Independent Disks).** is a technology that combines multiple physical disks into a single logical storage system. It was created to solve the problem of disk failures in servers. A RAID controller manages how data is stored across the disks using techniques such as striping (splitting data for speed), mirroring (duplicating data for protection), and parity (storing recovery information). Depending on the RAID level used, RAID can improve performance, increase data availability, and allow a server to continue operating even when one or more disks fail.
-RAID :RAID was invented to combine disks in different ways to achieve one or more goals:
-Suppose you buy a Dell server.
+- **RAID (Redundant Array of Independent Disks).**
+RAID was invented to combine disks into a single logical storage system in different ways to achieve one or more goals:
 You use the RAID :
-1/via hardware that connects the motherborad  ad the disks in the server The controller usually comes with management software.
+1/via hardware that connects the motherborad  and the disks in the server The controller usually comes with management software.
 2/via software but the windows server manages the processing 
 
 Then you configure depends on our level :
@@ -30,21 +29,19 @@ How many disks does the server have?
 How important is the data?
 Do I need speed or reliability?
 What is my budget?
+
 hado homa raid levels They are storage architectures.They define how data is distributed across disks.
-RAID 0: splitimg works beween disks for speed with no prtection
-RAID1:redundancy by copying data
-RAID2: not used but it was for error-correction methods
-RAID3:speed plus recovery
-RAID4:the same as 3 but using a parity disk
-RAID5:Disk 1 = Data and Disk 2 = Data for performance and speed but Disk 3 = Recovery Information
-RAID6:2 disks for recovery infos (max protection)
-RAID10:speed+protection by creating mirrors
+RAID0: spliting works between disks for speed with no prtection because we dont copy data(2 disks)
+RAID1: redundancy by copying data so data is safe(2 disks)
+RAID2: not used but it was for error-correction methods by using hamming code
+RAID3: 2 disks for performace by splitting data plus a  disk for parity recovery
+RAID4: the same as 3 but splittig data into blocks not bytes
+RAID5: Disk 1 = Data and Disk 2 = Data both for performance and speed and Recovery information is distributed across all disks
+RAID6: 2 disks for recovery infos (max protection)
+RAID10: speed+protection by creating mirrors
 Disk1 ↔ Disk2
-Disk3 ↔ Disk4 those two irrors pair work toghether for speed
-how to choose :
-2	RAID 0, RAID 1
-3	RAID 0, RAID 1, RAID 5
-4+	RAID 0, RAID 1, RAID 5, RAID 6, RAID 10
+Disk3 ↔ Disk4 those two mirrors pair work toghether for speed
+
 
   
 - **Redundant, hot-swappable power supplies.** Most servers ship with two power supply units (PSUs) instead of one. If one PSU fails, or even if someone accidentally unplugs one cable, the server keeps running on the second supply without any downtime. Technicians can often replace ("hot-swap") a failed PSU while the server keeps running, with no shutdown needed.
@@ -128,25 +125,8 @@ TCP/IP Stack Sends Response
 Client Receives Response
 
 
-3/which server models that satisfy those requirements: 
-The major server vendors are:
-Dell Technologies (PowerEdge)
-Hewlett Packard Enterprise (ProLiant)
-Lenovo (ThinkSystem)
-Cisco Systems (UCS)
-Verify:
-Performance
-Reliability(ECC RAM/RAID support/Redundant power supplies)
-Compatibility with Windows Server certification
-Support
-Scalability
-Price
-Initial purchase cost
-Maintenance cost
 
-4/The final selection is based on: Price Performance=Performance/Cost
 
-use case:Dell PowerEdge R550 with an Intel Xeon Silver processor, 32 GB ECC RAM, and SSD storage in RAID 1​
 
 
 
