@@ -128,10 +128,6 @@ TCP/IP Stack Sends Response
 Client Receives Response
 
 
-choosing a Windows Server hardware platform:
-1/identify the workload (Active Directory, DNS, DHCP, File Server, Virtualization, SQL Server...)
-identify the usage(Number of users/Number of devices/Expected growth/Availability requirements)
-2/benchmark the ressource requirements (CPU, RAM, Storage, and Network) by  searching in documentation for it b7al ana matalan ila beghut a DC i search Domain controller hardware requirements ola recommandations 
 3/which server models that satisfy those requirements: 
 The major server vendors are:
 Dell Technologies (PowerEdge)
