@@ -1,0 +1,189 @@
+# Hybrid Cloud Migration (On-Premises → Azure)
+
+## 1. Existing On-Premises Infrastructure
+
+The company starts with a traditional Windows Server environment.
+
+```text
+On-Premises
+
+DC01
+├── Active Directory Domain Services (AD DS)
+├── DNS
+└── DHCP
+
+Other Servers
+├── File Server
+├── SQL Server
+└── Application Server
+```
+
+- Active Directory authenticates users.
+- DNS resolves hostnames.
+- DHCP assigns IP addresses.
+- All applications run locally.
+
+---
+
+## 2. Prepare the Azure Environment
+
+Create:
+
+- Microsoft Tenant
+- Azure Subscription
+- Virtual Network (VNet)
+- Subnets
+- Storage
+- Virtual Machines
+- Backup Services
+
+At this stage, Azure is still independent from the on-premises network.
+
+---
+
+## 3. Connect On-Premises to Azure
+
+Create a secure connection using:
+
+- Site-to-Site VPN
+- ExpressRoute
+
+```text
+Company Network
+      ||
+ VPN / ExpressRoute
+      ||
+Azure Virtual Network
+```
+
+Azure now behaves like another company site.
+
+---
+
+## 4. Configure Hybrid Identity
+
+The company already has users inside Active Directory.
+
+To make these users available in the cloud, install **Microsoft Entra Connect Sync** (recommended on a dedicated member server).
+
+```text
+Active Directory
+        │
+        │ LDAP / Kerberos
+        ▼
+Microsoft Entra Connect Sync
+        │
+        │ HTTPS (443)
+        ▼
+Microsoft Entra ID
+```
+
+### Microsoft Entra Connect Sync
+
+Its role is to synchronize:
+
+- Users
+- Groups
+- Contacts
+- Password hashes (if Password Hash Sync is used)
+- User attributes (department, email, phone...)
+
+It **does not authenticate users**.
+
+---
+
+## 5. User Authentication
+
+After synchronization:
+
+```text
+User
+   │
+Microsoft Teams / Outlook / Azure Portal
+   │
+Microsoft Entra ID
+   │
+Authentication
+```
+
+Microsoft Entra ID authenticates users for:
+
+- Microsoft 365
+- Azure
+- Teams
+- Outlook
+- SharePoint
+- OneDrive
+
+---
+
+## 6. Migrate Workloads
+
+After identity is configured, migrate workloads gradually.
+
+Examples:
+
+- File Server → Azure VM or SharePoint Online
+- SQL Server → Azure SQL or Azure VM
+- Application Server → Azure VM
+- Exchange → Exchange Online
+
+Azure Virtual Machines can join the existing Active Directory domain through the VPN.
+
+---
+
+# Microsoft Entra Connect Sync vs Cloud Sync
+
+## Microsoft Entra Connect Sync
+
+- Traditional synchronization solution
+- Installed on a Windows Server
+- Best for large and complex Active Directory environments
+- Supports advanced synchronization features
+- Supports Hybrid Exchange
+
+Recommended for:
+- Large enterprises
+- Multi-forest environments
+- Complex infrastructures
+
+---
+
+## Microsoft Entra Cloud Sync
+
+- Newer synchronization solution
+- Uses lightweight Cloud Sync Agents
+- Easier to deploy and maintain
+- Supports high availability with multiple agents
+- Recommended for many new deployments when advanced features are not required
+
+Recommended for:
+- Small and medium organizations
+- Simpler Active Directory environments
+
+---
+
+# Final Architecture
+
+```text
+                     Microsoft Entra ID
+                             │
+          ┌──────────────────┴──────────────────┐
+          │                                     │
+     Microsoft 365                         Azure
+  Teams, Outlook,                     Virtual Machines
+  SharePoint, OneDrive                Storage, SQL, Backup
+          │                                     │
+          └──────── VPN / ExpressRoute ─────────┘
+                            │
+                    On-Premises Network
+         DC01 (AD DS) • DNS • DHCP • File Server • SQL
+```
+
+## Key Takeaways
+
+- **Active Directory** remains the source of identities.
+- **Microsoft Entra Connect Sync / Cloud Sync** synchronizes identities.
+- **Microsoft Entra ID** authenticates users in the cloud.
+- Azure and Microsoft 365 share the same identity platform.
+- Workloads are migrated gradually while keeping on-premises services running.
