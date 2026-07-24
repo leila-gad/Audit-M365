@@ -1,0 +1,303 @@
+# Microsoft 365 Administration Services
+
+## 1. Microsoft 365 Apps
+
+**Purpose:** Manage Microsoft Office applications.
+
+**Services**
+- Word
+- Excel
+- PowerPoint
+- Outlook
+- Access
+
+**Administrator Tasks**
+- Assign Microsoft 365 licenses
+- Deploy Office applications
+- Configure updates
+- Monitor installations
+
+**Used by**
+- IT Administrators
+- Help Desk
+
+---
+
+## 2. Azure
+
+**Purpose:** Manage the company's cloud infrastructure.
+
+**Services**
+- Virtual Machines (VMs)
+- Virtual Networks (VNets)
+- Storage Accounts
+- Azure Backup
+- Azure SQL
+- Load Balancers
+
+**Administrator Tasks**
+- Create and manage VMs
+- Configure networking
+- Manage storage
+- Monitor resources
+- Configure backups
+
+**Used by**
+- Cloud Administrators
+- Infrastructure Engineers
+- System Administrators
+
+---
+
+## 3. Exchange Online
+
+**Purpose:** Manage the company's email service.
+
+**Administrator Tasks**
+- Create mailboxes
+- Manage shared mailboxes
+- Create distribution groups
+- Configure mail flow
+- Configure anti-spam and security policies
+
+**Example**
+
+```
+leila@company.com
+```
+
+The mailbox is hosted in **Exchange Online**, not on an on-premises Exchange Server.
+
+---
+
+## 4. Universal Print
+
+**Purpose:** Cloud-based print management.
+
+**Administrator Tasks**
+- Register printers
+- Assign printers to users
+- Monitor print jobs
+- Manage print access
+
+**Used by**
+- IT Administrators
+
+---
+
+## 5. Microsoft Intune
+
+**Purpose:** Cloud-based device management (Modern Endpoint Management).
+
+**Manage**
+- Windows laptops
+- Smartphones
+- Tablets
+
+**Administrator Tasks**
+- Deploy applications
+- Configure Windows Updates
+- Enable BitLocker
+- Configure Wi-Fi
+- Configure VPN
+- Apply security policies
+- Remotely wipe lost devices
+
+> **Think of Intune as the cloud equivalent of Group Policy and endpoint management.**
+
+---
+
+## 6. Microsoft Entra
+
+**Purpose:** Cloud Identity and Access Management.
+
+### Microsoft Entra ID
+
+This is the **cloud identity provider**.
+
+It manages:
+
+- Users
+- Groups
+- Authentication
+- Multi-Factor Authentication (MFA)
+- Conditional Access
+- Single Sign-On (SSO)
+- Devices
+- Enterprise Applications
+
+All Microsoft cloud services authenticate through **Microsoft Entra ID**.
+
+### Microsoft Entra Connect Sync
+
+This is **NOT** a cloud service.
+
+It is software installed on an **on-premises Windows Server**.
+
+Its role is to synchronize:
+
+- Users
+- Groups
+- Password hashes
+- User attributes
+
+from **Active Directory** to **Microsoft Entra ID**.
+
+It **does not authenticate users**.
+
+### Microsoft Entra Cloud Sync
+
+A newer synchronization solution.
+
+Instead of one synchronization server, it uses lightweight **Cloud Sync Agents** installed on Windows Servers.
+
+Recommended for many new deployments when advanced synchronization features are not required.
+
+---
+
+## 7. Microsoft Purview
+
+**Purpose:** Data Governance and Compliance.
+
+**Features**
+- Data Loss Prevention (DLP)
+- Information Protection
+- Compliance Policies
+- Data Classification
+- Audit Logs
+
+**Used by**
+- Security Teams
+- Compliance Teams
+
+---
+
+## 8. Power Platform
+
+**Purpose:** Build business applications with low-code tools.
+
+**Includes**
+- Power Apps
+- Power Automate
+- Power BI
+
+**Example**
+- Vacation request application
+- Approval workflows
+- Dashboards
+
+---
+
+## 9. Search & Intelligence
+
+**Purpose:** Enterprise search.
+
+Allows employees to search across:
+
+- SharePoint
+- OneDrive
+- Teams
+- Company documents
+
+---
+
+## 10. Microsoft Security
+
+**Purpose:** Protect Microsoft 365 and Azure environments.
+
+**Features**
+- Microsoft Defender
+- Threat Detection
+- Anti-Phishing
+- Malware Protection
+- Security Reports
+- Incident Response
+
+Usually managed by the Security Operations Center (SOC).
+
+---
+
+## 11. SharePoint Online
+
+**Purpose:** Cloud document management and collaboration.
+
+Instead of storing files on an on-premises file server:
+
+```
+File Server
+D:\Shared
+```
+
+Companies use:
+
+```
+SharePoint Online
+```
+
+**Features**
+- Department sites
+- Document libraries
+- Version control
+- File sharing
+- Real-time collaboration
+
+---
+
+## 12. Microsoft Teams
+
+**Purpose:** Communication and collaboration platform.
+
+**Features**
+- Chat
+- Meetings
+- Video Calls
+- Channels
+- File Sharing
+- Collaboration
+
+Teams integrates with:
+
+- Microsoft Entra ID
+- Exchange Online
+- SharePoint Online
+- OneDrive
+
+---
+
+# Microsoft 365 Ecosystem
+
+```text
+                        Microsoft Entra ID
+                  (Identity & Authentication)
+                              │
+      ┌───────────────────────┼────────────────────────┐
+      │                       │                        │
+ Microsoft 365             Azure                 Security
+      │                       │                        │
+ Teams                   Virtual Machines     Microsoft Defender
+ Outlook                 Virtual Networks     Identity Protection
+ SharePoint              Storage Accounts     Conditional Access
+ OneDrive                Azure SQL            MFA
+ Exchange Online         Azure Backup
+      │
+      │
+ Intune manages devices.
+ Purview protects company data.
+ Power Platform automates business processes.
+```
+
+# Services to Focus on as a Windows Server / Cloud Infrastructure Intern
+
+| Priority | Service | Why It Matters |
+|----------|----------|----------------|
+| ⭐⭐⭐⭐⭐ | Microsoft Entra | Hybrid identity, authentication, synchronization with Active Directory |
+| ⭐⭐⭐⭐⭐ | Azure | Cloud infrastructure (VMs, networking, storage, backup) |
+| ⭐⭐⭐⭐ | Intune | Cloud device management |
+| ⭐⭐⭐⭐ | Exchange Online | Enterprise email administration |
+| ⭐⭐⭐⭐ | SharePoint Online | Cloud file sharing and collaboration |
+| ⭐⭐⭐ | Microsoft Security | Protect users, devices, and cloud services |
+| ⭐⭐ | Microsoft Purview | Compliance and data governance |
+| ⭐⭐ | Power Platform | Business automation and low-code applications |
+| ⭐ | Universal Print | Cloud printing |
+| ⭐ | Search & Intelligence | Enterprise search across Microsoft 365 |
+```
