@@ -1,0 +1,299 @@
+# Home Lab Roadmap: On-Prem to Hybrid Cloud (12 Labs)
+
+**Environment baseline (already in place):**
+- VMware Workstation on Windows host
+- Windows Server 2019 DC: `192.168.1.10`, static IP
+- Forest/domain: `lab.local`
+- DHCP scope: `192.168.1.100 – 192.168.1.200`
+- Network: VMnet1 (Host-Only)
+- Windows 10/11 client VM (domain-joined or pending)
+
+---
+
+## LAB 1 — On-Premises Infrastructure Foundation
+
+### Status: AD DS, DNS, DHCP done. Remaining: File Server.
+
+### Step-by-step: Add File Server role
+1. On the DC (or better, a **separate member server VM** — closer to real-world practice, since File Server on a DC is bad practice in production), open **Server Manager > Add Roles and Features**.
+2. Select **File and Storage Services > File Server**. Install.
+3. Create a data volume/folder structure, e.g.:
+   - `D:\Shares\Finance`
+   - `D:\Shares\HR`
+   - `D:\Shares\Public`
+4. Right-click each folder > **Properties > Sharing > Advanced Sharing** > share name (e.g. `Finance$` for hidden shares).
+5. Set **NTFS permissions** (Security tab) separately from **Share permissions** — best practice: Share = Everyone/Authenticated Users Full Control, NTFS = actual restriction via AD groups (you'll create these in Lab 2).
+6. Enable **Shadow Copies** (right-click volume > Configure Shadow Copies) for basic self-service file recovery.
+7. Test access from the client VM: `\\192.168.1.10\Finance$` (or better, `\\dc01.lab.local\Finance$` once DNS is confirmed).
+
+### Checklist to close out Lab 1
+- [ ] DC responds to `nslookup lab.local`
+- [ ] Client VM gets IP from DHCP scope automatically
+- [ ] Client VM can join domain (test with a temp OU or default Computers container)
+- [ ] File shares reachable by UNC path and by hostname (DNS working)
+- [ ] Static IP confirmed on DC (`ipconfig /all`)
+
+---
+
+## LAB 2 — Organizational Units, Users, Groups, Group Policy
+
+### Step-by-step
+1. **Design OU structure first** (on paper before touching AD Users and Computers):
+   ```
+   lab.local
+   ├── OU_HQ
+   │   ├── OU_Employees
+   │   ├── OU_Computers
+   │   ├── OU_Servers
+   │   └── OU_Groups
+   ```
+2. Open **Active Directory Users and Computers (ADUC)** > right-click domain > **New > Organizational Unit** for each.
+3. **Create users**: right-click `OU_Employees` > New > User. Do this manually for 5-10 test users, then consider bulk creation via PowerShell:
+   ```powershell
+   Import-Csv C:\users.csv | ForEach-Object {
+       New-ADUser -Name $_.Name -SamAccountName $_.SamAccountName `
+       -UserPrincipalName "$($_.SamAccountName)@lab.local" `
+       -Path "OU=Employees,OU=HQ,DC=lab,DC=local" `
+       -AccountPassword (ConvertTo-SecureString $_.Password -AsPlainText -Force) `
+       -Enabled $true -ChangePasswordAtLogon $true
+   }
+   ```
+4. **Create security groups** matching your file share needs from Lab 1:
+   - `GRP_Finance_RW`, `GRP_HR_RW`, `GRP_Public_Read`
+   - Assign these to the NTFS permissions on your file shares.
+5. **Group Policy Objects (GPOs)** — start with 3-4 practical ones:
+   - **Password Policy GPO** (linked at domain level): complexity, min length, lockout threshold.
+   - **Desktop Restriction GPO** (linked to `OU_Employees`): remove Control Panel access, disable USB storage.
+   - **Drive Mapping GPO**: map `\\dc01.lab.local\Finance$` to `F:` for users in `GRP_Finance_RW` (use Group Policy Preferences > Drive Maps, with item-level targeting by security group).
+   - **Software restriction / Windows Update GPO**.
+6. Use `gpupdate /force` on the client, then `gpresult /r` to verify which GPOs applied.
+
+### Checklist
+- [ ] OU structure matches org design
+- [ ] At least 10 test users created, in correct OUs
+- [ ] Groups created and mapped to file share NTFS permissions
+- [ ] 3+ GPOs created, linked, and verified with `gpresult`
+
+---
+
+## LAB 3 — Backup & Recovery
+
+### Step-by-step
+1. Install feature: **Server Manager > Add Roles and Features > Windows Server Backup**.
+2. Attach a second virtual disk to the DC VM in VMware (dedicated backup target — don't back up to the same disk as your data).
+3. Open **Windows Server Backup** console:
+   - **Local Backup > Backup Schedule** for daily automated jobs.
+   - Choose **Custom** backup (not full server) so you can select System State + volumes.
+4. **System State backup** (captures AD database, SYSVOL, registry):
+   ```powershell
+   wbadmin start systemstatebackup -backuptarget:E:
+   ```
+5. **Bare Metal Recovery test** (important, don't skip this):
+   - Take a full BMR backup: `wbadmin start backup -backupTarget:E: -include:C: -allCritical -quiet`
+   - Practice a **restore to a new VM** (or snapshot-revert-then-restore) to prove the backup is actually usable. A backup you've never restored isn't a backup.
+6. Document your **RPO/RTO** goals even informally (e.g. "RPO: 24h, RTO: 4h") — this is what you'll reference conceptually in Lab 4/5 when justifying cloud DR.
+
+### Checklist
+- [ ] Daily backup schedule configured and has run at least once successfully
+- [ ] System State backup completed
+- [ ] Full bare-metal restore tested successfully (this is the step most people skip — don't)
+
+---
+
+## LAB 4 — Design the Azure Architecture
+
+### Step-by-step (this is a design lab — mostly diagramming + planning)
+1. Sign up for **Azure Free Trial** or use an Azure for Students / MSDN sub if available.
+2. Decide your **hybrid IP addressing** — critical, must NOT overlap with `192.168.1.0/24`:
+   - Example: Azure VNet `10.10.0.0/16`
+     - `GatewaySubnet`: `10.10.255.0/27` (reserved, required name)
+     - `Subnet-Servers`: `10.10.1.0/24`
+     - `Subnet-Clients`: `10.10.2.0/24`
+3. Plan resources:
+   - Resource Group: `RG-LabHybrid`
+   - VNet + subnets (above)
+   - Virtual Network Gateway (for Lab 5 VPN)
+   - NSGs (Network Security Groups) per subnet
+4. Draw the architecture (even a simple diagram) showing: on-prem `192.168.1.0/24` ↔ VPN Gateway ↔ Azure VNet `10.10.0.0/16` ↔ future DC2/App VMs.
+5. Decide region (pick one close to you for latency, e.g. West Europe if you're in Morocco).
+
+### Checklist
+- [ ] Resource Group created
+- [ ] VNet created with non-overlapping address space
+- [ ] Subnets planned including dedicated `GatewaySubnet`
+- [ ] Architecture diagram documented (even hand-drawn/Visio/draw.io is fine)
+
+---
+
+## LAB 5 — Site-to-Site VPN to Azure
+
+### Step-by-step
+1. In Azure: create **Virtual Network Gateway** (SKU: VpnGw1 for lab purposes — cheapest that supports S2S), attach to `GatewaySubnet`. This takes 30-45 min to provision — start it early.
+2. Create a **Local Network Gateway** in Azure representing your on-prem side: enter your home/lab public IP and the on-prem address space (`192.168.1.0/24`).
+3. Create the **Connection** (VNet Gateway ↔ Local Network Gateway), type = Site-to-Site (IPsec).
+4. On your on-prem side, you need a VPN device. Since this is a home lab without a real edge firewall/router with S2S support, options:
+   - Use **RRAS (Routing and Remote Access)** role on a Windows Server VM as the VPN endpoint, configured for S2S IKEv2.
+   - Or use **pfSense/OPNsense** VM as your virtual edge router (more realistic — many real companies use this instead of RRAS).
+5. Configure the **pre-shared key** to match on both Azure and on-prem sides.
+6. Verify: Azure Portal > Connection > should show **"Connected"**.
+7. Test connectivity: from the DC, `ping 10.10.1.4` (a placeholder Azure VM IP) once you have a VM there — or at minimum verify the gateway shows connected status and check effective routes.
+
+### Checklist
+- [ ] Azure VPN Gateway shows "Connected" status
+- [ ] On-prem router/RRAS/pfSense configured with matching PSK
+- [ ] Routing confirmed (on-prem subnet reachable from Azure test VM once deployed)
+
+---
+
+## LAB 6 — Microsoft Entra Connect (Identity Sync)
+
+### Step-by-step
+1. Create a **Microsoft 365 Developer tenant** or Entra ID free tier if you don't already have a tenant — gives you `yourtenant.onmicrosoft.com`.
+2. Install **Microsoft Entra Connect** (formerly Azure AD Connect) on a **member server** (not the DC — best practice), or the DC itself if lab resources are constrained.
+3. Choose sync method during setup — for lab purposes, pick **Password Hash Synchronization (PHS)**: simplest, most common in real deployments, no extra infrastructure needed (Pass-through Auth needs connector agents; Federation needs ADFS — save those for later exploration).
+4. During setup, select which OUs to sync — sync only `OU_HQ` (not built-in containers) to keep it clean.
+5. Enable **Password Writeback** if you want password changes in the cloud to sync back on-prem (optional but good to practice).
+6. Run initial sync, then verify in **Entra Admin Center (entra.microsoft.com) > Users** — your on-prem users should now appear as "synced from on-premises directory."
+7. Check sync health: **Microsoft Entra Connect Health** or just re-run `Start-ADSyncSyncCycle -PolicyType Delta` after making an AD change, and confirm it reflects in the cloud within minutes.
+
+### Checklist
+- [ ] Entra Connect installed and initial sync completed
+- [ ] On-prem users visible in Entra Admin Center
+- [ ] Delta sync tested (change an attribute on-prem, confirm it syncs)
+
+---
+
+## LAB 7 — Entra Users, MFA, Roles
+
+### Step-by-step
+1. In **Entra Admin Center**, create a couple of **cloud-only** users (not synced) to understand the difference vs. synced identities.
+2. Enable **Security Defaults** (free, simplest MFA enforcement) if you don't have Entra ID P1/P2 — Entra Admin Center > Properties > Manage Security Defaults > On.
+   - If you have P1 trial: build a real **Conditional Access policy** instead (e.g. "Require MFA for all users" — much closer to real enterprise practice).
+3. Have a test user register for MFA: sign in at `myaccount.microsoft.com`, add Authenticator app method.
+4. **Assign Entra roles** (RBAC) — practice with built-in roles:
+   - Assign a user as **User Administrator** (can reset passwords, manage users) — NOT Global Admin, to practice least-privilege.
+   - Assign another as **Helpdesk Administrator**.
+5. Document the difference between **on-prem AD groups** (Lab 2) and **Entra roles** (this lab) — different purposes: AD groups = resource access, Entra roles = admin permissions over the tenant itself.
+
+### Checklist
+- [ ] MFA enforced (Security Defaults or Conditional Access) and tested with a real sign-in
+- [ ] At least 2 different Entra roles assigned to different test users
+- [ ] Clear understanding documented of AD groups vs. Entra roles distinction
+
+---
+
+## LAB 8 — Azure Virtual Machines, Domain Join
+
+### Step-by-step
+1. In Azure, deploy a VM into `Subnet-Servers` (`10.10.1.0/24`):
+   - Size: `B2s` or `B2ms` (cheap, sufficient for lab)
+   - OS: Windows Server 2019 (matches on-prem for consistency)
+2. **Critical DNS step** (this is the #1 place labs fail): go to the VNet's **DNS Servers** setting in Azure > change from "Default (Azure-provided)" to **Custom**, and enter your on-prem DC's IP (`192.168.1.10`) — reachable via the Lab 5 VPN. Without this, the Azure VM can't find your domain to join it.
+3. RDP into the Azure VM (via its public IP, or better, via **Azure Bastion** for security practice).
+4. Confirm it can resolve `lab.local`: `nslookup lab.local`.
+5. Domain join: **System Properties > Change > Domain: lab.local** using a domain admin credential.
+6. Reboot, log in with a domain account to confirm.
+7. Optional but recommended: promote this VM as a **second Domain Controller (DC2)** — this closes the loop back to our earlier conversation about eliminating the single point of failure:
+   - Add AD DS role, `dcpromo`/Server Manager promotion, join existing forest `lab.local`.
+   - Verify replication: `repadmin /replsummary`.
+
+### Checklist
+- [ ] Azure VM deployed in correct subnet
+- [ ] VNet DNS pointed to on-prem DC
+- [ ] VM successfully domain-joined
+- [ ] (Stretch goal) DC2 promoted in Azure, AD replication confirmed both directions
+
+---
+
+## LAB 9 — File Server → SharePoint Migration
+
+### Step-by-step
+1. In Microsoft 365 Admin Center, create a **SharePoint site** per department (or one site with document libraries per team — decide based on your OU structure from Lab 2).
+2. Install **SharePoint Migration Tool (SPMT)** on a machine with access to your on-prem file shares.
+3. **Before migrating** — audit your NTFS permissions structure (Lab 2 groups) and manually map them to SharePoint permission levels; they don't translate automatically.
+4. Run a **test migration** of one small folder first (e.g. `Public`), verify:
+   - Files/folders intact
+   - Permissions correctly applied to the equivalent SharePoint group
+   - No broken links or unsupported characters (SharePoint has stricter filename rules — `#`, `%`, trailing spaces will error)
+5. Migrate remaining shares one department at a time, not all at once.
+6. Set up **OneDrive sync** on the client VM so users can access the migrated library like a mapped drive.
+7. Document lessons learned: what broke, what needed manual permission remapping.
+
+### Checklist
+- [ ] SharePoint site(s) created matching org structure
+- [ ] Test migration completed and verified
+- [ ] Full migration completed with permissions manually validated (not just copied blindly)
+- [ ] Client VM can access migrated content via OneDrive sync
+
+---
+
+## LAB 10 — Exchange Online
+
+### Step-by-step
+1. In Microsoft 365 Admin Center, assign **Exchange Online licenses** to your synced users (from Lab 6).
+2. Verify **mailboxes provision automatically** for synced users (can take a few minutes to a few hours).
+3. If practicing a "real" migration scenario, set up **Hybrid Configuration Wizard** (only if you also install an on-prem Exchange Server — optional, heavier lab; many home labs skip full hybrid Exchange and just do a clean cloud mailbox setup instead).
+4. Configure basic **mail flow rules** in Exchange Admin Center (e.g., disclaimer footer, internal-only distribution list).
+5. Create a **Distribution List** and a **Shared Mailbox** tied to your OU/department structure.
+6. Test send/receive between two lab users via Outlook Web Access (OWA).
+
+### Checklist
+- [ ] Licenses assigned, mailboxes provisioned
+- [ ] At least one mail flow rule configured
+- [ ] Distribution list and shared mailbox created
+- [ ] Successful test email between two users
+
+---
+
+## LAB 11 — Intune Device Management
+
+### Step-by-step
+1. In **Intune Admin Center**, confirm your Windows 10/11 client VM is either:
+   - **Hybrid Entra joined** (on-prem domain-joined + synced to cloud) — realistic for existing company devices, or
+   - **Entra joined** (cloud-only) — realistic for new device provisioning
+2. Enroll the client: **Settings > Accounts > Access work or school > Connect**, sign in with a licensed test user.
+3. Create a **Compliance Policy** (e.g. require BitLocker, minimum OS version, require password).
+4. Create a **Configuration Profile** (e.g. enforce a specific desktop wallpaper, disable Cortana, configure Windows Update rings).
+5. Push an app deployment (even something simple like installing a Win32 app or a Microsoft Store app) to test deployment mechanics.
+6. Verify from client side: `Settings > Accounts > Access work or school > Info` should show sync status and applied policies.
+
+### Checklist
+- [ ] Client VM successfully enrolled in Intune
+- [ ] Compliance policy applied and showing "Compliant" status
+- [ ] Configuration profile applied and verified on the client
+- [ ] At least one app deployment tested
+
+---
+
+## LAB 12 — Microsoft Defender (Security)
+
+### Step-by-step
+1. Enable **Microsoft Defender for Endpoint** on the client VM and Azure VM(s) — onboard via Intune (Lab 11) configuration profile or manual onboarding script.
+2. In **Microsoft 365 Defender portal**, verify devices appear and are reporting.
+3. Enable **Microsoft Defender for Identity** (monitors your on-prem AD/DC for suspicious activity) — install the sensor on your DC.
+4. Configure a basic **Attack Simulation** (Defender portal > Email & Collaboration > Attack simulation training) to test phishing awareness against a test user.
+5. Review the **Secure Score** dashboard — this ties together everything from Labs 6-12 into a single security posture metric.
+6. Set up at least one **alert policy** (e.g. impossible travel sign-in, multiple failed logins) and trigger it artificially to confirm alerting works end-to-end.
+
+### Checklist
+- [ ] Devices onboarded and reporting into Defender portal
+- [ ] Defender for Identity sensor active on DC
+- [ ] At least one alert policy tested and confirmed working
+- [ ] Secure Score reviewed and understood
+
+---
+
+## Overall Progression Logic (why this order works)
+
+```
+Identity foundation (1-2) → Resilience (3) → Cloud extension (4-5)
+→ Cloud identity (6-7) → Cloud compute (8) → SaaS migration (9-10)
+→ Endpoint management (11) → Security wrap-up (12)
+```
+
+Each lab depends on the previous one being solid — don't skip ahead if a checklist item is failing, since problems compound (e.g. DNS misconfiguration in Lab 8 will look like a "domain join" problem, but the root cause is back in Lab 4-5's networking design).
+
+## General tips across all labs
+- **Snapshot your VMs before each lab** in VMware Workstation — if something breaks, revert rather than troubleshooting from scratch under time pressure.
+- **Keep a running notes doc** of every IP, credential, and naming convention you use — real IT documentation habits start here.
+- **Budget watch:** Labs 4-12 use real Azure/M365 resources. Use free trials, stop/deallocate VMs when not actively using them, and set a spending alert/budget cap in Azure to avoid surprise charges.
