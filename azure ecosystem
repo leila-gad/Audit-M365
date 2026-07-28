@@ -4,7 +4,6 @@
 
 The company starts with a traditional Windows Server environment.
 
-```text
 On-Premises
 
 DC01
@@ -48,7 +47,7 @@ Create a secure connection using:
 - Site-to-Site VPN
 - ExpressRoute
 
-```text
+
 Company Network
       ||
  VPN / ExpressRoute
@@ -66,7 +65,6 @@ The company already has users inside Active Directory.
 
 To make these users available in the cloud, install **Microsoft Entra Connect Sync** (recommended on a dedicated member server).
 
-```text
 Active Directory
         │
         │ LDAP / Kerberos
@@ -165,7 +163,7 @@ Recommended for:
 
 # Final Architecture
 
-```text
+
                      Microsoft Entra ID
                              │
           ┌──────────────────┴──────────────────┐
